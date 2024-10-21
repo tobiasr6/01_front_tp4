@@ -64,3 +64,9 @@
   overflow: hidden;
   padding-top: 5px;
 }
+
+.card p, .card-list p {
+  margin: 0; /* O ajusta el valor según el espacio que desees */
+  padding: 2px 0; /* Reducir el espacio vertical */
+  line-height: 1.2; /* Opcional: Ajustar la altura de línea */
+}
