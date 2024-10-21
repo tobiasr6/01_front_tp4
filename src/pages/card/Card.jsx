@@ -1,48 +1,60 @@
-import { Card, Spin, Alert } from 'antd';
+import { Card, Spin, Alert, Button } from 'antd';
 import './card.css';
 import useFetchProductos from '../../routes/gets/getProductos';
-
-// import imagen from '../../assets/1.jpg';
+import { useState } from 'react';
 
 const { Meta } = Card;
 
-const CardP = () => {
-    const { productos, loading, error } = useFetchProductos();
+const CardList = () => {
+  const { productos, loading, error } = useFetchProductos();
+  const [viewMode, setViewMode] = useState('grid'); // Estado para cambiar entre 'grilla' y 'lista'
 
-    if (loading) {
-        return <Spin size="large" />;
-    }
+  if (loading) {
+    return <Spin size="large" />;
+  }
 
-    if (error) {
-        return <Alert message="Error" description={error} type="error" showIcon />;
-    }
+  if (error) {
+    return <Alert message="Error" description={error} type="error" showIcon />;
+  }
 
-    console.log(productos); // Esto te ayudará a verificar que estás recibiendo los productos correctamente.
+  const toggleViewMode = () => {
+    setViewMode((prevMode) => (prevMode === 'grid' ? 'list' : 'grid'));
+  };
 
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-            {productos.map((producto) => {
-                const imagen = producto.URLImagen; // Asegúrate de que esta URL sea correcta
+  return (
+    <div>
+      {/* Botón para cambiar la vista */}
+      <Button color="primary" variant="solid" onClick={toggleViewMode} style={{marginBottom: 10}}>
+        {viewMode === 'grid' ? 'Ver como Lista' : 'Ver como Grilla'}
+      </Button>
 
-                return (
-                    <Card
-                        key={producto.idCodigo}
-                        hoverable
-                        style={{ width: 240 }}
-                        cover={
-                            <img
-                                alt={producto.Descripcion}
-                                src={imagen} // Usa directamente la URL de la base de datos
-                                onError={(e) => (e.target.src = 'https://via.placeholder.com/240')} // Usa una imagen de respaldo si la URL falla
-                            />
-                        }
-                    >
-                        <Meta title={producto.Descripcion} description={`Precio: $${producto.Precio}`} />
-                    </Card>
-                );
-            })}
-        </div>
-    );
+      {/* Contenedor de las tarjetas con transición */}
+      <div className={`transition-container ${viewMode === 'grid' ? 'card-container-grid' : 'card-container-list'}`}>
+        {productos.map((producto) => (
+          <Card
+            key={producto.idCodigo}
+            hoverable
+            className={viewMode === 'grid' ? 'card' : 'card-list'}
+            cover={
+              <div className="card-img-container">
+                <img
+                  className="card-img"
+                  alt={producto.Descripcion}
+                  src={producto.URLImagen}
+                  onError={(e) => (e.target.src = 'https://via.placeholder.com/240')}
+                />
+              </div>
+            }
+          >
+            <Meta
+              title={producto.Descripcion}
+              description={`Precio: $${producto.Precio}`}
+            />
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
 };
 
-export default CardP;
+export default CardList;
