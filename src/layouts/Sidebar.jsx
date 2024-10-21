@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout, Menu, Modal } from 'antd';
-import { LogoutOutlined, HomeOutlined, ProductOutlined } from '@ant-design/icons';
+import { LogoutOutlined, HomeOutlined, ProductOutlined, SettingOutlined } from '@ant-design/icons';
 import { useNavigate, Outlet } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
@@ -37,6 +37,9 @@ const BaseLayout = () => {
                     </Menu.Item>
                     <Menu.Item key="/productos" icon={<ProductOutlined />}>
                         Productos
+                    </Menu.Item>
+                    <Menu.Item key="/config" icon={<SettingOutlined />}>
+                        Configuracion
                     </Menu.Item>
                     <Menu.Item key="logout" icon={<LogoutOutlined />}>
                         Cerrar Sesión
