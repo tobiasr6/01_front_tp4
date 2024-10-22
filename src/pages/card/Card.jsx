@@ -2,6 +2,8 @@ import { Card, Spin, Alert, Button, Select, Empty } from 'antd';
 import './card.css';
 import useFetchProductos from '../../routes/gets/getProductos';
 import useFetchRubro from '../../routes/gets/getRubros';
+import SearchBar from './Components/SearchBar';
+import SortSelector from './Components/SortSelector';
 import { useState } from 'react';
 
 const { Meta } = Card;
@@ -12,6 +14,7 @@ const CardList = () => {
   const [selectedRubro, setSelectedRubro] = useState('');
   const [sortField, setSortField] = useState('Precio');
   const [sortOrder, setSortOrder] = useState('ASC');
+  const [searchTerm, setSearchTerm] = useState(''); // Estado para almacenar el término de búsqueda
   
   // Llamar a la función useFetchProductos con los parámetros de ordenamiento
   const { productos, loading, error } = useFetchProductos(sortField, sortOrder);
@@ -42,12 +45,18 @@ const CardList = () => {
     setSortOrder(order);
   };
 
-  const filteredProductos = selectedRubro
-    ? productos.filter((producto) => producto.DescripcionRub === selectedRubro)
-    : productos;
+  const filteredProductos = productos
+    .filter((producto) => 
+      (!selectedRubro || producto.DescripcionRub === selectedRubro) && // Filtrar por rubro
+      producto.Descripcion.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por búsqueda
+    );
 
   const toggleViewMode = () => {
     setViewMode((prevMode) => (prevMode === 'grid' ? 'list' : 'grid'));
+  };
+
+  const handleSearch = (value) => {
+    setSearchTerm(value); // Actualizar el término de búsqueda cuando el usuario busca
   };
 
   return (
@@ -65,18 +74,12 @@ const CardList = () => {
           </Option>
         ))}
       </Select>
+
+      {/* Componente de búsqueda */}
+      <SearchBar onSearch={handleSearch} />
       
-      {/* Selector de ordenamiento */}
-      <Select
-        placeholder="Ordenar por"
-        onChange={handleSortChange}
-        style={{ width: 200, marginBottom: 10, marginRight: 10 }}
-      >
-        <Option value="Precio_ASC">Precio (menor a mayor)</Option>
-        <Option value="Precio_DESC">Precio (mayor a menor)</Option>
-        <Option value="Descripcion_ASC">Nombre (A-Z)</Option>
-        <Option value="Descripcion_DESC">Nombre (Z-A)</Option>
-      </Select>
+      {/* Componente de ordenamiento */}
+      <SortSelector onSortChange={handleSortChange} />
 
       {/* Botón para cambiar la vista */}
       <Button
