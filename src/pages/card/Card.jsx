@@ -8,13 +8,17 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const CardList = () => {
-  const { productos, loading, error } = useFetchProductos();
-  const { rubros, loading: loadingRubros, error: errorRubros } = useFetchRubro();
   const [viewMode, setViewMode] = useState('grid'); // Estado para cambiar entre 'grilla' y 'lista'
   const [selectedRubro, setSelectedRubro] = useState('');
+  const [sortField, setSortField] = useState('Precio');
+  const [sortOrder, setSortOrder] = useState('ASC');
+  
+  // Llamar a la función useFetchProductos con los parámetros de ordenamiento
+  const { productos, loading, error } = useFetchProductos(sortField, sortOrder);
+  const { rubros, loading: loadingRubros, error: errorRubros } = useFetchRubro();
 
   if (loading || loadingRubros) {
-    return <Spin size='large' />; // Mostrar spinner mientras se cargan los productos o rubros
+    return <Spin size='large' />;
   }
 
   if (error || errorRubros) {
@@ -25,11 +29,17 @@ const CardList = () => {
         type='error'
         showIcon
       />
-    ); // Mostrar mensaje de error si ocurre en productos o rubros
+    );
   }
 
   const handleRubroChange = (value) => {
     setSelectedRubro(value);
+  };
+
+  const handleSortChange = (value) => {
+    const [field, order] = value.split('_');
+    setSortField(field);
+    setSortOrder(order);
   };
 
   const filteredProductos = selectedRubro
@@ -40,10 +50,6 @@ const CardList = () => {
     setViewMode((prevMode) => (prevMode === 'grid' ? 'list' : 'grid'));
   };
 
-  // console.log('productis', productos);
-  // console.log('rubro', rubros)
-
-
   return (
     <div>
       {/* Filtro de rubros */}
@@ -53,12 +59,25 @@ const CardList = () => {
         style={{ width: 200, marginBottom: 10, marginRight: 10 }}
       >
         <Option value=''>Todos</Option>
-        {rubros.map((rubro) => (
+        {rubros && rubros.map((rubro) => (
           <Option key={rubro.idRubroCod} value={rubro.DescripcionRub}>
             {rubro.DescripcionRub}
           </Option>
         ))}
       </Select>
+      
+      {/* Selector de ordenamiento */}
+      <Select
+        placeholder="Ordenar por"
+        onChange={handleSortChange}
+        style={{ width: 200, marginBottom: 10, marginRight: 10 }}
+      >
+        <Option value="Precio_ASC">Precio (menor a mayor)</Option>
+        <Option value="Precio_DESC">Precio (mayor a menor)</Option>
+        <Option value="Descripcion_ASC">Nombre (A-Z)</Option>
+        <Option value="Descripcion_DESC">Nombre (Z-A)</Option>
+      </Select>
+
       {/* Botón para cambiar la vista */}
       <Button
         color='primary'
@@ -69,9 +88,8 @@ const CardList = () => {
         {viewMode === 'grid' ? 'Ver como Lista' : 'Ver como Grilla'}
       </Button>
 
-      {/* Contenedor de las tarjetas con transición */}
       {filteredProductos.length === 0 ? (
-        <Empty description='No hay productos disponibles' /> // Mostrar mensaje si no hay productos
+        <Empty description='No hay productos disponibles' />
       ) : (
         <div
           className={`transition-container ${
@@ -96,18 +114,18 @@ const CardList = () => {
                 </div>
               }
             >
-            <Meta
-              title={producto.Descripcion}
-              description={
-                <>
-                  <p>Precio: ${producto.Precio}</p>
-                  <p>Rubro: {producto.DescripcionRub}</p>
-                </>
-              }
-            />
-          </Card>
-        ))}
-      </div>
+              <Meta
+                title={producto.Descripcion}
+                description={
+                  <>
+                    <p>Precio: ${producto.Precio}</p>
+                    <p>Rubro: {producto.DescripcionRub}</p>
+                  </>
+                }
+              />
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
